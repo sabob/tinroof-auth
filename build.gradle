@@ -1,0 +1,15 @@
+//apply plugin: 'java-library'
+apply plugin: 'war'
+
+repositories {
+    mavenCentral();
+}
+
+def v = [
+        servlet-api : '3.0.1'
+]
+
+dependencies {
+    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '$v.servlet-api'
+    testCompile group: 'junit', name: 'junit', version: '4.4'
+}
