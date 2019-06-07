@@ -1,5 +1,6 @@
 package za.sabob.tinroof.auth.helper;
 
+import za.sabob.tinroof.auth.bean.TinRoofConfig;
 import za.sabob.tinroof.auth.bean.UsernameAndPassword;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,22 @@ public class FormAuthHelper {
     public static UsernameAndPassword getUsernameAndPassword( HttpServletRequest req ) {
         String username = req.getParameter( PARAM_USERNAME );
         String password = req.getParameter( PARAM_PASSWORD );
-        UsernameAndPassword result = new UsernameAndPassword( username, password);
+        UsernameAndPassword result = new UsernameAndPassword( username, password );
         return result;
+    }
+
+    public static boolean isFormAuthRequest( HttpServletRequest req, TinRoofConfig config ) {
+
+        if ( config.isHandleFormLogin() ) {
+
+            String loginUrl = config.getLoginUrl();
+
+            String path = AuthUtils.getResourcePath( req );
+            if ( path.equals( loginUrl ) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

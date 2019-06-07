@@ -22,20 +22,6 @@ public class BasicAuthHelper {
         return false;
     }
 
-    public static boolean isFormAuthRequest( HttpServletRequest req, String loginUrl ) {
-
-        // Only consider POST requests as Form authentication
-        if ( AuthUtils.isPost( req ) ) {
-
-            String path = AuthUtils.getResourcePath( req );
-            if ( path.equals( loginUrl ) ) {
-                return true;
-            }
-
-        }
-        return false;
-    }
-
     public static UsernameAndPassword getUsernameAndPassword( HttpServletRequest req ) {
 
         String authHeader = req.getHeader( AUTHORIZATION_HEADER );

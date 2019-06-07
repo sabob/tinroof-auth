@@ -19,6 +19,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * Provides a authentication and authorization manager that is setup as part of a Servlet Filter.
+ *
+ * The manager provides login for both Basic and Form mechanisms.
+ *
+ * It provides:
+ *
+ * Ability to switch on/off form authentication, see
+ * TinRoofConfig.handleFormLogin
+ * TinRoofConfig.handleFormLogout
+ *
+ * Can return error as JSON or a Basic Auth Popup if no authentication provided, see
+ * TinRoofConfig.notifyBasicAuthRequired
+ */
 public class TinRoofAuthManager {
 
     protected static Logger LOGGER = LoggerFactory.getLogger( TinRoofAuthManager.class );
@@ -31,7 +45,7 @@ public class TinRoofAuthManager {
 
     public void handleRequest( HttpServletRequest req, HttpServletResponse resp, FilterChain chain ) {
 
-        ensureBasicAuthUserAndCookieUserSame( req, resp );
+        ensureBasicAuthUserAndLoggedInUserIsSame( req, resp );
 
         MatchResult matchResult = matchToMostSpecificSecurityConstraint( req );
 
@@ -108,7 +122,7 @@ public class TinRoofAuthManager {
         }
     }
 
-    protected void ensureBasicAuthUserAndCookieUserSame( HttpServletRequest req, HttpServletResponse resp ) {
+    protected void ensureBasicAuthUserAndLoggedInUserIsSame( HttpServletRequest req, HttpServletResponse resp ) {
 
         if ( isUserAlreadyAuthenticated( req ) ) {
 
@@ -212,7 +226,7 @@ public class TinRoofAuthManager {
 
                 loginSucceeded = loginWithBasicAuthentication( req, resp );
 
-            } else if ( isFormLoginRequest( req ) ) {
+            } else if ( FormAuthHelper.isFormAuthRequest( req, getConfig() ) ) {
 
                 loginSucceeded = loginWithFormAuthentication( req, resp );
 
@@ -264,8 +278,11 @@ public class TinRoofAuthManager {
 
         } else {
 
-            // Else redirect to index.jsp
-            redirectToWelcomePage( req, resp, chain );
+            // TODO - not sure if we should redirect to welcome page, continue with filter and let the JEE container handle the request
+            // or make it configurable so that all unhandled requests be directed to welcome page
+            doFilter( req, resp, chain );
+            //redirectToWelcomePage( req, resp, chain );
+
         }
     }
 
@@ -386,28 +403,20 @@ public class TinRoofAuthManager {
             return req.getRemoteUser();
         }
 
-
         return "Unkonwn";
     }
 
     protected void handleLoginException( Exception error, HttpServletRequest req ) {
         LOGGER.debug( error.getMessage(), error );
 
-        UsernameAndPassword usernameAndPassword = BasicAuthHelper.getUsernameAndPassword( req );
+        // Can override to send email etc
+
+        // UsernameAndPassword usernameAndPassword = BasicAuthHelper.getUsernameAndPassword( req );
 
 //        new EmailBuilder()
 //                .user( getLoggedInUser( req ) )
 //                .exception( "Error occurred while authenticating user " + usernameAndPassword.username, error )
 //                .toJavaDevs()
 //                .send();
-    }
-
-    protected boolean isFormLoginRequest( HttpServletRequest req ) {
-
-        if ( getConfig().isHandleFormLogin() && BasicAuthHelper.isFormAuthRequest( req, getConfig().getLoginUrl() ) ) {
-            return true;
-        }
-
-        return false;
     }
 }

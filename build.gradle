@@ -1,16 +1,24 @@
-//apply plugin: 'java-library'
-apply plugin: 'war'
+apply plugin: 'java-library'
+//apply plugin: 'war'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral();
 }
 
 def v = [
-        'servletApi' : '3.0.1',
-        'junit' : '4.4'
+        'servletApi': '3.0.1',
+        'slf4j'  : '1.7.25',
+        'junit'     : '4.4'
 ]
 
 dependencies {
-    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: "$v.servletApi"
-    testCompile group: 'junit', name: 'junit', version: "$v.junit"
+    compile group: 'org.slf4j', name: 'slf4j-api', version: "$v.slf4j"
+    api group: 'javax.servlet', name: 'javax.servlet-api', version: "$v.servletApi"
+    testImplementation  group: 'junit', name: 'junit', version: "$v.junit"
+    testCompile group: 'org.slf4j', name: "slf4j-simple", version: "$v.slf4j"
+    testCompile group: 'org.springframework', name: 'spring-test', version: '5.1.3.RELEASE'
+
 }
